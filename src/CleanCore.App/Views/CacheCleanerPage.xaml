@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="CleanCore_App.Views.CacheCleanerPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:CleanCore.Core.Models"
+    mc:Ignorable="d">
+
+    <Grid Padding="28,24,28,28" RowSpacing="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Top Header -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Spacing="4">
+                <TextBlock Text="Application &amp; System Cache Cleaner" Style="{ThemeResource TitleTextBlockStyle}" FontWeight="SemiBold" />
+                <TextBlock Text="Modular provider architecture targeting safe application scratch files, browser stores, and package caches" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                <Button Content="Re-Scan Caches" Click="OnScanCachesClick" />
+                <Button x:Name="CleanSelectedButton" Content="Clean Selected Caches" Click="OnCleanSelectedClick" Style="{ThemeResource AccentButtonStyle}" />
+            </StackPanel>
+        </Grid>
+
+        <!-- Summary & Running Process Warning -->
+        <StackPanel Grid.Row="1" Spacing="10">
+            <InfoBar x:Name="RunningBrowserWarning"
+                     IsOpen="False"
+                     Severity="Warning"
+                     Title="Active Applications Detected"
+                     Message="One or more browsers are running. Close them to ensure all cached files can be safely deleted." />
+
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="14">
+                <Grid>
+                    <StackPanel Orientation="Horizontal" Spacing="24">
+                        <StackPanel>
+                            <TextBlock Text="Total Reclaimable Identified" FontSize="11" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                            <TextBlock x:Name="TotalReclaimableText" Text="0 B" FontSize="18" FontWeight="Bold" Foreground="#EA4335" />
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="Providers Analyzed" FontSize="11" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                            <TextBlock x:Name="ProvidersCountText" Text="5 Active" FontSize="18" FontWeight="SemiBold" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <Button Content="Select All" Click="OnSelectAllClick" />
+                        <Button Content="Select Safe Only" Click="OnSelectSafeOnlyClick" Style="{ThemeResource AccentButtonStyle}" />
+                        <Button Content="Deselect All" Click="OnDeselectAllClick" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </StackPanel>
+
+        <!-- Provider Items Cards -->
+        <Grid Grid.Row="2">
+            <StackPanel x:Name="LoadingPanel" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
+                <ProgressRing IsActive="True" Width="48" Height="48" />
+                <TextBlock x:Name="LoadingText" Text="Analyzing modular cache providers..." Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+            </StackPanel>
+
+            <ScrollViewer>
+                <ItemsControl x:Name="ProvidersItemsControl">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Spacing="14" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="models:CacheProviderResult">
+                            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1" CornerRadius="10" Padding="18">
+                                <Grid RowSpacing="10">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <!-- Top Row: Provider Header & Checkbox -->
+                                    <Grid Grid.Row="0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackPanel Orientation="Horizontal" Spacing="10">
+                                            <CheckBox IsChecked="{x:Bind IsSelected, Mode=TwoWay}"
+                                                      IsThreeState="True"
+                                                      Click="OnProviderCheckBoxClick"
+                                                      VerticalAlignment="Center" />
+                                            <StackPanel VerticalAlignment="Center">
+                                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                                    <TextBlock Text="{x:Bind DisplayName}" FontWeight="SemiBold" FontSize="15" />
+                                                    <Border CornerRadius="4" Padding="6,2" Background="{ThemeResource SubtleFillColorSecondaryBrush}">
+                                                        <TextBlock Text="{x:Bind Category}" FontSize="11" />
+                                                    </Border>
+                                                    <Border CornerRadius="4" Padding="6,2" Background="{ThemeResource SubtleFillColorSecondaryBrush}">
+                                                        <TextBlock Text="{x:Bind RiskBadge}" FontSize="11" FontWeight="SemiBold" />
+                                                    </Border>
+                                                </StackPanel>
+                                                <TextBlock Text="{x:Bind Description}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right">
+                                            <TextBlock Text="{x:Bind SelectedSizeDisplay, Mode=OneWay}" FontWeight="Bold" FontSize="16" HorizontalAlignment="Right" />
+                                            <TextBlock Text="{x:Bind SizeDisplay, Mode=OneWay}" FontSize="11" Foreground="{ThemeResource TextFillColorTertiaryBrush}" HorizontalAlignment="Right" />
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <!-- Running Warning if any -->
+                                    <TextBlock Grid.Row="1" Text="{x:Bind RunningProcessWarning}" Foreground="#D83B01" FontSize="12" FontWeight="SemiBold" />
+
+                                    <!-- Targets Preview Expander -->
+                                    <Expander Grid.Row="2" Header="View Targets and Directory Locations" HorizontalAlignment="Stretch">
+                                        <ItemsControl ItemsSource="{x:Bind Targets}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate x:DataType="models:CacheTargetItem">
+                                                    <Grid Padding="8,4" ColumnSpacing="12">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto" />
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="Auto" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <CheckBox IsChecked="{x:Bind IsSelected, Mode=TwoWay}"
+                                                                  Click="OnTargetCheckBoxClick"
+                                                                  VerticalAlignment="Center" />
+                                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                            <TextBlock Text="{x:Bind Name}" FontSize="13" FontWeight="SemiBold" />
+                                                            <TextBlock Text="{x:Bind Path}" FontSize="11" Foreground="{ThemeResource TextFillColorTertiaryBrush}" TextTrimming="CharacterEllipsis" />
+                                                            <TextBlock Text="{x:Bind SideEffectDescription}" FontSize="10" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                                        </StackPanel>
+                                                        <TextBlock Grid.Column="2" Text="{x:Bind SizeDisplay}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </Expander>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- Clean Status Outcome -->
+        <InfoBar Grid.Row="3" x:Name="CleanupOutcomeBar" IsOpen="False" Title="Cleanup Completed" />
+    </Grid>
+</Page>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="CleanCore_App.Views.SystemCleanupPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:maintenance="using:CleanCore.Core.SystemMaintenance"
+    mc:Ignorable="d">
+
+    <ScrollViewer Padding="28,24,28,32">
+        <StackPanel Spacing="20" MaxWidth="1300" HorizontalAlignment="Stretch">
+
+            <!-- Header -->
+            <StackPanel Spacing="4">
+                <TextBlock Text="Windows System Servicing &amp; Maintenance" Style="{ThemeResource TitleTextBlockStyle}" FontWeight="SemiBold" />
+                <TextBlock Text="Privileged maintenance integrations with official Windows component servicing, Update delivery caches, and Storage Sense" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+            </StackPanel>
+
+            <!-- Privileged Security Notice Banner -->
+            <InfoBar IsOpen="True"
+                     IsClosable="False"
+                     Severity="Informational"
+                     Title="Administrative Safety Safeguards"
+                     Message="System servicing tasks invoke official Windows servicing facilities (such as DISM and SoftwareDistribution maintenance). Tasks requiring elevation will present a standard Windows UAC confirmation dialog. System component stores are never modified arbitrarily." />
+
+            <!-- Available System Tasks -->
+            <TextBlock Text="Available Windows Maintenance Facility Tasks" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="SemiBold" Margin="0,8,0,0" />
+
+            <ItemsControl x:Name="TasksItemsControl">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Spacing="14" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="maintenance:SystemMaintenanceTask">
+                        <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1" CornerRadius="10" Padding="18">
+                            <Grid ColumnSpacing="16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Shield / Icon -->
+                                <Border Width="40" Height="40" CornerRadius="8" Background="{ThemeResource SubtleFillColorSecondaryBrush}" VerticalAlignment="Center">
+                                    <FontIcon Glyph="&#xE7EF;"
+                                              Foreground="{ThemeResource AccentFillColorDefaultBrush}"
+                                              FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+
+                                <!-- Task Details -->
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <TextBlock Text="{x:Bind Title}" FontWeight="SemiBold" FontSize="15" />
+                                        <Border Visibility="{x:Bind RequiresElevation}" CornerRadius="4" Padding="6,2" Background="#0078D4">
+                                            <TextBlock Text="UAC Elevation Required" Foreground="White" FontSize="10" FontWeight="Bold" />
+                                        </Border>
+                                    </StackPanel>
+                                    <TextBlock Text="{x:Bind Description}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                                    <TextBlock Text="{x:Bind UtilityCommand}" FontSize="11" Foreground="{ThemeResource TextFillColorTertiaryBrush}" FontFamily="Consolas" />
+                                </StackPanel>
+
+                                <!-- Action Button -->
+                                <Button Grid.Column="2" Content="Run Maintenance" Click="OnRunTaskClick" Tag="{x:Bind}" Style="{ThemeResource AccentButtonStyle}" VerticalAlignment="Center" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- Execution Status Banner -->
+            <InfoBar x:Name="ExecutionOutcomeBar" IsOpen="False" Title="Maintenance Result" Margin="0,12,0,0" />
+        </StackPanel>
+    </ScrollViewer>
+</Page>

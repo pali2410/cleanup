@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "CleanCore.App (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "CleanCore.App (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="CleanCore_App.Views.CleanupPlannerPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:CleanCore.Core.Models"
+    mc:Ignorable="d">
+
+    <Grid Padding="28,24,28,28" RowSpacing="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Spacing="4">
+                <TextBlock Text="Cleanup Planner &amp; Recovery Estimation" Style="{ThemeResource TitleTextBlockStyle}" FontWeight="SemiBold" />
+                <TextBlock Text="Structured review of candidates, risk ratings, quarantine toggle, and verified space reclamation" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                <Button Content="Select All" Click="OnSelectAllClick" />
+                <Button Content="Select Safe Only" Click="OnSelectSafeOnlyClick" />
+                <Button Content="Deselect All" Click="OnDeselectAllClick" />
+                <Button Content="Regenerate Plan" Click="OnRegeneratePlanClick" />
+                <Button x:Name="ExecutePlanButton" Content="Execute Approved Plan" Click="OnExecutePlanClick" Style="{ThemeResource AccentButtonStyle}" />
+            </StackPanel>
+        </Grid>
+
+        <!-- Metric Dashboard -->
+        <Grid Grid.Row="1" ColumnSpacing="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Total Selected" FontSize="11" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                    <TextBlock x:Name="TotalSelectedMetricText" Text="0 B" FontSize="20" FontWeight="Bold" />
+                    <TextBlock x:Name="CandidatesCountText" Text="0 items selected" FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="1" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Safe Space" FontSize="11" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                    <TextBlock x:Name="SafeSpaceMetricText" Text="0 B" FontSize="20" FontWeight="Bold" Foreground="#107C41" />
+                    <TextBlock Text="Pure scratch &amp; temp files" FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="2" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Requires Review" FontSize="11" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                    <TextBlock x:Name="ReviewSpaceMetricText" Text="0 B" FontSize="20" FontWeight="Bold" Foreground="#D83B01" />
+                    <TextBlock Text="Package caches / redownload" FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="3" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Protected Space Excluded" FontSize="11" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                    <TextBlock x:Name="ExcludedSpaceMetricText" Text="0 B" FontSize="20" FontWeight="Bold" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" />
+                    <TextBlock Text="Windows core &amp; protected data" FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Candidates Review Table -->
+        <Grid Grid.Row="2">
+            <Border x:Name="LoadingPanel" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1" CornerRadius="12" Padding="28,24" MinWidth="440">
+                <StackPanel Spacing="14">
+                    <StackPanel Orientation="Horizontal" Spacing="14" VerticalAlignment="Center">
+                        <ProgressRing IsActive="True" Width="32" Height="32" />
+                        <StackPanel Spacing="2">
+                            <TextBlock x:Name="LoadingText" Text="Executing approved cleanup..." FontWeight="SemiBold" FontSize="15" />
+                            <TextBlock x:Name="LoadingItemCountText" Text="Preparing transactions..." FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <ProgressBar x:Name="ExecutionProgressBar" Maximum="100" Value="0" Height="8" CornerRadius="4" />
+
+                    <TextBlock x:Name="LoadingSubText" Text="Validating candidate targets..." FontSize="11" Foreground="{ThemeResource TextFillColorTertiaryBrush}" TextTrimming="CharacterEllipsis" MaxWidth="400" />
+                </StackPanel>
+            </Border>
+
+            <ListView x:Name="CandidatesListView" SelectionMode="None">
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="models:CleanupCandidate">
+                        <Grid Padding="12,10" ColumnSpacing="14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <CheckBox IsChecked="{x:Bind IsSelected, Mode=TwoWay}" Checked="OnCandidateCheckChanged" Unchecked="OnCandidateCheckChanged" VerticalAlignment="Center" />
+
+                            <!-- Candidate Details -->
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="{x:Bind Name}" FontWeight="SemiBold" FontSize="14" />
+                                    <Border CornerRadius="4" Padding="6,2" Background="{ThemeResource SubtleFillColorSecondaryBrush}">
+                                        <TextBlock Text="{x:Bind Category}" FontSize="11" />
+                                    </Border>
+                                </StackPanel>
+                                <TextBlock Text="{x:Bind Path}" FontSize="11" Foreground="{ThemeResource TextFillColorTertiaryBrush}" TextTrimming="CharacterEllipsis" />
+                                <TextBlock Text="{x:Bind Reason}" FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            </StackPanel>
+
+                            <!-- Risk Level Badge -->
+                            <Border Grid.Column="2" VerticalAlignment="Center" Margin="0,0,16,0" CornerRadius="4" Padding="8,4" Background="{ThemeResource SubtleFillColorSecondaryBrush}">
+                                <TextBlock Text="{x:Bind RiskLevel}" FontSize="11" FontWeight="SemiBold" />
+                            </Border>
+
+                            <!-- Reversible Status -->
+                            <TextBlock Grid.Column="3" Text="{x:Bind ReversibleDisplay}" FontSize="11" Foreground="{ThemeResource TextFillColorTertiaryBrush}" VerticalAlignment="Center" Margin="0,0,16,0" />
+
+                            <!-- Size -->
+                            <TextBlock Grid.Column="4" Text="{x:Bind SizeDisplay}" FontWeight="Bold" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Right" MinWidth="80" />
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Grid>
+
+        <!-- Execution Options & Result Bar -->
+        <Grid Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <CheckBox x:Name="QuarantineToggleCheckBox" Content="Quarantine files before permanent deletion (enables rollback/restore)" IsChecked="True" VerticalAlignment="Center" />
+
+            <InfoBar Grid.Column="1" x:Name="ExecutionOutcomeBar" IsOpen="False" Title="Cleanup Completed" />
+        </Grid>
+    </Grid>
+</Page>

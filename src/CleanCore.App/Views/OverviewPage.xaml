@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="CleanCore_App.Views.OverviewPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:CleanCore.Core.Models"
+    mc:Ignorable="d">
+
+    <ScrollViewer Padding="28,24,28,32">
+        <StackPanel Spacing="20" MaxWidth="1300" HorizontalAlignment="Stretch">
+            
+            <!-- Page Header -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                
+                <StackPanel Spacing="4">
+                    <TextBlock Text="System Storage Intelligence" Style="{ThemeResource TitleTextBlockStyle}" FontWeight="SemiBold" />
+                    <TextBlock Text="Real-time capacity, volume health, and allocation across all accessible local drives" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                    <Button x:Name="RefreshDrivesButton" Click="OnRefreshDrivesClick" Style="{ThemeResource AccentButtonStyle}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE72C;" FontSize="14" />
+                            <TextBlock Text="Refresh Drives" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+
+            <!-- Critical Low Space Banner -->
+            <InfoBar x:Name="CriticalAlertBanner"
+                     IsOpen="False"
+                     Severity="Error"
+                     Title="Critical Storage Warning"
+                     Message="The system drive is operating below safe thresholds. Background servicing, pagefiles, and update installations may fail." />
+
+            <!-- Drive Capacity Metric Cards -->
+            <TextBlock Text="Local Drives &amp; Partitions" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="SemiBold" Margin="0,8,0,0" />
+            
+            <ItemsControl x:Name="DrivesItemsControl">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Spacing="16" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="models:DriveModel">
+                        <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                CornerRadius="12"
+                                Padding="20">
+                            <Grid RowSpacing="14">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <!-- Top Row: Drive title, badge, and health -->
+                                <Grid Grid.Row="0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Orientation="Horizontal" Spacing="12">
+                                        <Border Width="40" Height="40" CornerRadius="8" Background="{ThemeResource AccentFillColorDefaultBrush}">
+                                            <FontIcon Glyph="&#xEDA2;" Foreground="White" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        </Border>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="{x:Bind DisplayTitle}" FontWeight="SemiBold" FontSize="16" />
+                                            <TextBlock Text="{x:Bind DriveType}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="12" />
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                        <Border CornerRadius="6" Padding="8,4" Background="{ThemeResource SubtleFillColorSecondaryBrush}">
+                                            <TextBlock Text="{x:Bind FileSystem}" FontSize="12" FontWeight="SemiBold" />
+                                        </Border>
+                                        <Border CornerRadius="6" Padding="8,4" Background="{ThemeResource SubtleFillColorSecondaryBrush}">
+                                            <TextBlock Text="{x:Bind HealthStatus}" FontSize="12" />
+                                        </Border>
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- Middle: Proportional Progress Bar -->
+                                <StackPanel Grid.Row="1" Spacing="6">
+                                    <ProgressBar Value="{x:Bind UsedPercentage}" Maximum="100" Height="10" CornerRadius="5" />
+                                    <Grid>
+                                        <TextBlock Text="{x:Bind UsedDisplay}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="12" HorizontalAlignment="Left" />
+                                        <TextBlock Text="{x:Bind FreePercentageDisplay}" FontWeight="SemiBold" FontSize="12" HorizontalAlignment="Right" />
+                                    </Grid>
+                                </StackPanel>
+
+                                <!-- Bottom Row: Metrics and Action Buttons -->
+                                <Grid Grid.Row="2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Orientation="Horizontal" Spacing="24">
+                                        <StackPanel>
+                                            <TextBlock Text="Total Capacity" FontSize="11" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                                            <TextBlock Text="{x:Bind TotalDisplay}" FontWeight="SemiBold" FontSize="14" />
+                                        </StackPanel>
+                                        <StackPanel>
+                                            <TextBlock Text="Used Space" FontSize="11" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                                            <TextBlock Text="{x:Bind UsedDisplay}" FontWeight="SemiBold" FontSize="14" />
+                                        </StackPanel>
+                                        <StackPanel>
+                                            <TextBlock Text="Available Free" FontSize="11" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                                            <TextBlock Text="{x:Bind FreeDisplay}" FontWeight="SemiBold" FontSize="14" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" />
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                                        <Button Content="Explore Drive" Click="OnExploreDriveClick" Tag="{x:Bind Name}" />
+                                        <Button Content="Deep Scan" Click="OnDeepScanDriveClick" Tag="{x:Bind Name}" Style="{ThemeResource AccentButtonStyle}" />
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- Quick Action Hub Cards -->
+            <TextBlock Text="Quick Actions &amp; Tools" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="SemiBold" Margin="0,16,0,0" />
+
+            <Grid ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Action 1 -->
+                <Button Grid.Column="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="0" Click="OnQuickDeepScanClick">
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="10" Padding="16">
+                        <StackPanel Spacing="8">
+                            <FontIcon Glyph="&#xE8B7;" FontSize="24" Foreground="#0078D4" HorizontalAlignment="Left" />
+                            <TextBlock Text="Deep Analysis" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Text="Examine category distributions and major space consumers." Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="12" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+                </Button>
+
+                <!-- Action 2 -->
+                <Button Grid.Column="1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="0" Click="OnQuickCacheCleanerClick">
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="10" Padding="16">
+                        <StackPanel Spacing="8">
+                            <FontIcon Glyph="&#xE74D;" FontSize="24" Foreground="#EA4335" HorizontalAlignment="Left" />
+                            <TextBlock Text="Cache Cleaner" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Text="Clean Windows temp, browser caches, and dev package stores." Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="12" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+                </Button>
+
+                <!-- Action 3 -->
+                <Button Grid.Column="2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="0" Click="OnQuickLargeFilesClick">
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="10" Padding="16">
+                        <StackPanel Spacing="8">
+                            <FontIcon Glyph="&#xE8E5;" FontSize="24" Foreground="#D83B01" HorizontalAlignment="Left" />
+                            <TextBlock Text="Large Files" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Text="Discover multi-gigabyte files with safe transfer and review." Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="12" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+                </Button>
+
+                <!-- Action 4 -->
+                <Button Grid.Column="3" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="0" Click="OnQuickAiAssistantClick">
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="10" Padding="16">
+                        <StackPanel Spacing="8">
+                            <FontIcon Glyph="&#xE99A;" FontSize="24" Foreground="#8764B8" HorizontalAlignment="Left" />
+                            <TextBlock Text="AI Assistant" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Text="Ask local LLM to explain disk usage and orchestrate plans." Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="12" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+                </Button>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+</Page>
