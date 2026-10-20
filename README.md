@@ -1,5 +1,9 @@
 <div align="center">
 
+<p align="center">
+  <img src="assets/github-trending-badge.png" alt="GitHub Trending #1 Repository Of The Day" width="280"/>
+</p>
+
 # ⚡ CleanCore
 
 ### Advanced Windows Storage Intelligence & System Cleanup Platform
@@ -12,6 +16,14 @@
 [![Direct Download](https://img.shields.io/badge/Download-CleanCore.exe%20(527%20KB)-brightgreen?logo=windows)](https://cleancore-app.pages.dev/download/CleanCore.exe)
 
 [**🌐 Live Retro Showcase Website**](https://cleancore-app.pages.dev) • [**⤓ Download CleanCore.exe**](https://cleancore-app.pages.dev/download/CleanCore.exe) • [**📐 System Architecture**](https://cleancore-app.pages.dev/profile) • [**📰 Release Changelog**](https://cleancore-app.pages.dev/news-watch)
+
+<br/>
+
+<a href="https://cleancore-app.pages.dev">
+  <img src="assets/cleancore-home-preview.png" alt="CleanCore Pro Retro CRT Showcase" width="850" style="border-radius: 8px;"/>
+</a>
+
+<p><em>Interactive Retro 3D CRT Showcase running live at <a href="https://cleancore-app.pages.dev">cleancore-app.pages.dev</a></em></p>
 
 </div>
 
@@ -27,7 +39,11 @@ Unlike web mockups or basic script wrappers, CleanCore directly interfaces with 
 
 ## 🏛️ System Architecture
 
-CleanCore is organized into three decoupled subsystems following modern desktop separation of concerns:
+<p align="center">
+  <a href="https://cleancore-app.pages.dev/profile">
+    <img src="assets/cleancore-architecture-preview.png" alt="CleanCore Pro Architecture & Specifications" width="850" style="border-radius: 8px;"/>
+  </a>
+</p>
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
